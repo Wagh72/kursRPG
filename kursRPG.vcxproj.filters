@@ -23,5 +23,8 @@
     <Image Include="src\textures\image.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="src\textures\GrassAndTrails.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
