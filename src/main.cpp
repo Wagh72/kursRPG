@@ -58,7 +58,7 @@ private:
 };
 int main()
 {
-    RenderWindow window(VideoMode(1024, 1024), "Tilemap");
+    RenderWindow window(VideoMode(1024, 1024), "asd");
     //Робимо мапу через масив
     const int level[] =
     {
