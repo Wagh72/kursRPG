@@ -134,14 +134,32 @@ void drawMap(sf::RenderWindow& window, const sf::Texture& texture1)
     }
 }
 
+void drawPlayer(sf::RenderWindow& window, sf::Sprite Player, int x, int y)
+{
+   Player.setPosition(x, y);
+   window.draw(Player);
+}
+void PlayerMovement(sf::Sprite Player)
+{
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Left))
+    {
+        Player.setPosition(100, 100);
+    }
+}
+
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "test");
-    sf::Texture texture1;
+    sf::Texture texture1, PlayerTexture;
+    sf::Sprite Player;
     if (!loadTexture(texture1, "src/textures/ReBild1.png"))
         std::cerr << "Error loading texture1" << std::endl;
-
+    if (!loadTexture(PlayerTexture, "src/textures/Pltexture.png"))
+        std::cerr << "Error loading Player Texture" << std::endl;
+    Player.setTexture(PlayerTexture);
+    int x = 0;
+    int y = 0;
     sf::Clock clock;
     while (window.isOpen())
     {
@@ -154,6 +172,8 @@ int main()
 
         window.clear(sf::Color::White);
         drawMap(window, texture1);
+        drawPlayer(window, Player, x, y);
+        PlayerMovement(Player);
         window.display();
 
         static int frameCount = 0;
@@ -184,6 +204,16 @@ int main()
 
 
 /*
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+
+
 int layer3[LAYER_HEIGHT][LAYER_WIDTH] =
 {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -221,6 +251,17 @@ int layer3[LAYER_HEIGHT][LAYER_WIDTH] =
             }
         }
     }
+
+
+
+    sf::Sprite Player;
+    Player.setTexture(PlayerTexture);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
+        Player.move(1.f, 0.f);
+    }
+
+
 
 
 
