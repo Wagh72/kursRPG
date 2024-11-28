@@ -2,6 +2,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <cmath>
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 1024;
@@ -134,17 +135,39 @@ void drawMap(sf::RenderWindow& window, const sf::Texture& texture1)
     }
 }
 
-void drawPlayer(sf::RenderWindow& window, sf::Sprite Player, int x, int y)
+void drawPlayer(sf::RenderWindow& window, sf::Sprite& Player, int x, int y)
 {
    Player.setPosition(x, y);
    window.draw(Player);
 }
-void PlayerMovement(sf::Sprite Player)
+void PlayerMovement(sf::Sprite& Player, int& x, int& y)
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Left))
+    int speed = 1;
+
+    // Оновлення координат залежно від натискань клавіш
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
     {
-        Player.setPosition(100, 100);
+        x -= speed;
     }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
+        x += speed;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+    {
+        y -= speed;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+    {
+        y += speed;
+    }
+
+    // Перевірка на межі вікна
+    if (x < 0) x = 0;
+    if (x >= WINDOW_WIDTH) x = WINDOW_WIDTH - 32;
+    if (y < 0) y = 0;
+    if (y >= WINDOW_HEIGHT) y = WINDOW_HEIGHT - 32;
+    std::cout << "x: " << x << ", y: " << y << std::endl;
 }
 
 
@@ -158,8 +181,8 @@ int main()
     if (!loadTexture(PlayerTexture, "src/textures/Pltexture.png"))
         std::cerr << "Error loading Player Texture" << std::endl;
     Player.setTexture(PlayerTexture);
-    int x = 0;
-    int y = 0;
+    int x = 512;
+    int y = 512;
     sf::Clock clock;
     while (window.isOpen())
     {
@@ -173,7 +196,7 @@ int main()
         window.clear(sf::Color::White);
         drawMap(window, texture1);
         drawPlayer(window, Player, x, y);
-        PlayerMovement(Player);
+        PlayerMovement(Player, x, y);
         window.display();
 
         static int frameCount = 0;
@@ -212,6 +235,112 @@ int main()
 * 
 * 
 * 
+
+
+
+
+
+
+
+
+
+
+int main()
+{
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "test");
+    sf::Texture texture1, PlayerTexture;
+    sf::Sprite Player;
+    if (!loadTexture(texture1, "src/textures/ReBild1.png"))
+        std::cerr << "Error loading texture1" << std::endl;
+    if (!loadTexture(PlayerTexture, "src/textures/Pltexture.png"))
+        std::cerr << "Error loading Player Texture" << std::endl;
+    Player.setTexture(PlayerTexture);
+    int x = 0;
+    int y = 0;
+    bool keyProcessed = false;
+    sf::Clock clock;
+    while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        window.clear(sf::Color::White);
+        drawMap(window, texture1);
+        drawPlayer(window, Player, x, y);
+
+        if (event.type == sf::Event::KeyPressed && !keyProcessed)
+        {
+            if (event.key.code == sf::Keyboard::Right)
+            {
+                x += 100;
+                keyProcessed = true;
+            }
+
+            if (event.key.code == sf::Keyboard::Left)
+            {
+                x -= 100;
+                keyProcessed = true;
+            }
+
+            if (event.key.code == sf::Keyboard::Up)
+            {
+                 y -= 100;
+                keyProcessed = true;
+            }
+
+            if (event.key.code == sf::Keyboard::Down)
+            {
+                y += 100;
+                keyProcessed = true;
+            }
+        }
+
+        if (event.type == sf::Event::KeyReleased)
+        {
+            if (event.key.code == sf::Keyboard::Right)
+            {
+                keyProcessed = false;
+            }
+
+            if (event.key.code == sf::Keyboard::Left)
+            {
+                //x -= 100;
+                keyProcessed = false;
+            }
+            if (event.key.code == sf::Keyboard::Up)
+            {
+                keyProcessed = false;
+            }
+
+            if (event.key.code == sf::Keyboard::Down)
+            {
+                // y += 100;
+                keyProcessed = false;
+            }
+        }
+
+        PlayerMovement(Player);
+        window.display();
+
+        static int frameCount = 0;
+        static float elapsedTime = 0.0f;
+        frameCount++;
+        elapsedTime += clock.restart().asSeconds();
+
+        if (elapsedTime >= 1.0f)
+        {
+            std::stringstream title;
+            title << "FPS: " << frameCount;
+            window.setTitle(title.str());
+            frameCount = 0;
+            elapsedTime = 0.0f;
+        }
+
+
 
 
 int layer3[LAYER_HEIGHT][LAYER_WIDTH] =
