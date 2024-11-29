@@ -142,7 +142,13 @@ void drawPlayer(sf::RenderWindow& window, sf::Sprite& Player, int x, int y)
 }
 void PlayerMovement(sf::Sprite& Player, int& x, int& y)
 {
-    int speed = 1;
+    int speed = 3;
+
+    // Перевірка на межі вікна
+    if (x < 0) x = 0;
+    if (x >= WINDOW_WIDTH - 32) x = WINDOW_WIDTH - 32;
+    if (y < 0) y = 0;
+    if (y >= WINDOW_HEIGHT - 51) y = WINDOW_HEIGHT - 51;
 
     // Оновлення координат залежно від натискань клавіш
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
@@ -162,11 +168,6 @@ void PlayerMovement(sf::Sprite& Player, int& x, int& y)
         y += speed;
     }
 
-    // Перевірка на межі вікна
-    if (x < 0) x = 0;
-    if (x >= WINDOW_WIDTH) x = WINDOW_WIDTH - 32;
-    if (y < 0) y = 0;
-    if (y >= WINDOW_HEIGHT) y = WINDOW_HEIGHT - 32;
     std::cout << "x: " << x << ", y: " << y << std::endl;
 }
 
