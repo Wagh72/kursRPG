@@ -3,7 +3,8 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-
+#include <filesystem>
+#include <algorithm> // для std::sort
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 1024;
 
@@ -46,12 +47,11 @@ int layer1[LAYER_HEIGHT][LAYER_WIDTH] =
 39,38,39,40,55,56,54,55,56,19,38,19,19,40,38,83,84,40,19,40,5,6,19,20,19,21,22,20,5,5,6,20,
 38,38,39,40,40,34,35,36,33,19,54,55,19,56,39,99,100,56,56,56,21,22,35,36,33,34,35,5,21,21,22,36,
 54,54,55,56,56,50,51,38,38,54,55,54,55,56,55,115,116,54,55,56,49,50,51,52,49,50,51,21,22,50,51,52
-
 };
 
 int layer2[LAYER_HEIGHT][LAYER_WIDTH] =
-    {
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,10,11,12,13,0,0,0,0,0,0,0,0,0,0,0,
+{
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,10,11,12,13,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,14,15,16,0,0,0,0,0,0,25,26,27,28,29,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,30,31,32,0,0,0,0,0,0,41,42,43,44,45,0,0,0,0,0,0,0,0,0,0,0,
 0,0,9,10,11,12,13,46,47,48,0,9,10,11,12,13,57,58,59,60,61,0,14,15,16,0,0,0,0,0,0,0,
@@ -140,82 +140,205 @@ void drawPlayer(sf::RenderWindow& window, sf::Sprite& Player, int x, int y)
    Player.setPosition(x, y);
    window.draw(Player);
 }
-void PlayerMovement(sf::Sprite& Player, int& x, int& y)
+void PlayerMovement(sf::Sprite& Player, int& x, int& y, sf::Event someEvent)
 {
-    int speed = 1;
+    static bool keyWasPressed = false;
+    static bool keyWasPressedR = false;
+    static bool keyWasPressedUP = false;
+    static bool keyWasPressedDown = false;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !keyWasPressed)
+    {
+        x -= 32;
+        keyWasPressed = true;
+    }
+    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        keyWasPressed = false;
 
-    // Оновлення координат залежно від натискань клавіш
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !keyWasPressedR)
     {
-        x -= speed;
+        x += 32;
+        keyWasPressedR = true;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        keyWasPressedR = false;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !keyWasPressedUP)
     {
-        x += speed;
+        y -= 32;
+        keyWasPressedUP = true;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        keyWasPressedUP = false;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !keyWasPressedDown)
     {
-        y -= speed;
+        y += 32;
+        keyWasPressedDown = true;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-    {
-        y += speed;
-    }
-
+    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        keyWasPressedDown = false;
     // Перевірка на межі вікна
     if (x < 0) x = 0;
     if (x >= WINDOW_WIDTH) x = WINDOW_WIDTH - 32;
     if (y < 0) y = 0;
     if (y >= WINDOW_HEIGHT) y = WINDOW_HEIGHT - 32;
-    std::cout << "x: " << x << ", y: " << y << std::endl;
+    std::cout << "\nx: " << x << ", y: " << y << std::endl;
+    std::cout << keyWasPressed << std::endl;
+}
+int getRandomNumberX(int minX, int maxX)
+{
+    int range = (maxX - minX) / 32;
+    return minX + (rand() % (range + 1)) * 32;
 }
 
-
-int main()
+int getRandomNumberY(int minY, int maxY)
 {
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "test");
-    sf::Texture texture1, PlayerTexture;
-    sf::Sprite Player;
-    if (!loadTexture(texture1, "src/textures/ReBild1.png"))
-        std::cerr << "Error loading texture1" << std::endl;
-    if (!loadTexture(PlayerTexture, "src/textures/Pltexture.png"))
-        std::cerr << "Error loading Player Texture" << std::endl;
-    Player.setTexture(PlayerTexture);
-    int x = 512;
-    int y = 512;
-    sf::Clock clock;
-    while (window.isOpen())
+    int range = (maxY - minY) / 32;
+    return minY + (rand() % (range + 1)) * 32;
+}
+void Tab(int playerScore)
+{
+    static int tab[5] = { 0 }; // Масив для збереження рекордів
+
+    // Перевіряємо, чи потрібно додати новий рекорд
+    for (int i = 0; i < 5; i++)
     {
-        sf::Event event;
-        while (window.pollEvent(event))
+        if (playerScore > tab[i])
         {
-            if (event.type == sf::Event::Closed)
-                window.close();
+            // Зсуваємо всі значення вниз
+            for (int j = 4; j > i; j--)
+            {
+                tab[j] = tab[j - 1];
+            }
+            tab[i] = playerScore;
+            break;
         }
+    }
 
-        window.clear(sf::Color::White);
-        drawMap(window, texture1);
-        drawPlayer(window, Player, x, y);
-        PlayerMovement(Player, x, y);
-        window.display();
+    // Вивід таблиці рекордів
+    std::cout << "     ---SCORE TAB---\n";
+    for (int i = 0; i < 5; i++)
+    {
+        std::cout << i + 1 << ". " << tab[i] << "\n";
+    }
+}
+void DrawEnemy(sf::RenderWindow& window, int& xG, int& yG, int xP, int yP, int minX, int maxX, int minY, int maxY, int& playerScore)
+{
+    static int touchCheck = 0; // Статична змінна, щоб не скидалася
+    sf::Texture GolemTexture;
+    sf::Sprite Golem;
 
-        static int frameCount = 0;
-        static float elapsedTime = 0.0f;
-        frameCount++;
-        elapsedTime += clock.restart().asSeconds();
+    if (!loadTexture(GolemTexture, "src/textures/Golem.png"))
+        std::cerr << "Error loading GolemTexture" << std::endl;
 
-        if (elapsedTime >= 1.0f)
-        {
-            std::stringstream title;
-            title << "FPS: " << frameCount;
-            window.setTitle(title.str());
-            frameCount = 0;
-            elapsedTime = 0.0f;
-        }
+    Golem.setTexture(GolemTexture);
+    Golem.setPosition(xG, yG);
+    window.draw(Golem);
+
+    const int collisionThresholdY = 9;
+    const int collisionThresholdX = 20;
+
+    if (abs(xG - xP) <= collisionThresholdX && abs(yG - yP) <= collisionThresholdY && touchCheck == 0)
+    {
+        // Переміщуємо голема
+        xG = getRandomNumberX(minX, maxX);
+        yG = getRandomNumberY(minY, maxY);
+
+        Golem.setPosition(xG, yG);
+        touchCheck = 1;
+
+        playerScore += 10; // Збільшуємо рахунок
+        Tab(playerScore);   // Оновлюємо таблицю рекордів
+    }
+    else if (!(abs(xG - xP) <= collisionThresholdX && abs(yG - yP) <= collisionThresholdY))
+    {
+        touchCheck = 0; // Скидаємо тригер
     }
 }
 
 
+std::string formatTime(int seconds) 
+{
+    int minutes = seconds / 60;
+    int secs = seconds % 60;
+    std::ostringstream oss;
+    oss << minutes << ":" << (secs < 10 ? "0" : "") << secs;
+    return oss.str();
+}
+int main()
+{
+    int menuCheck = 0;
+    int input = 0;
+    int playerScore = 0;
+    static int playerName = 0;
+    start:
+    std::cout << "--- MENU ---\n 1.Play\n 2.Score Tab\n 3.Settings\n ";
+    std::cin >> input;
+
+    if (input == 1)
+    {
+        std::cout << "Before game, please enter your name: ";
+        std::cin >> playerName;
+        sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Game - 60s");
+        sf::Texture texture1, PlayerTexture;
+        sf::Sprite Player;
+        if (!loadTexture(texture1, "src/textures/ReBild1.png"))
+            std::cerr << "Error loading texture1" << std::endl;
+
+        if (!loadTexture(PlayerTexture, "src/textures/Pltexture.png"))
+            std::cerr << "Error loading Player Texture" << std::endl;
+
+        Player.setTexture(PlayerTexture);
+
+        sf::Clock clock;
+        int countdown = 30; // Лічильник на 60 секунд
+
+        srand(time(0));
+        rand();
+
+        int x = 500;
+        int y = 450;
+        int minX = 0;
+        int maxX = 980;
+        int minY = 450;
+        int maxY = 450;
+        int xG = getRandomNumberX(minX, maxX);
+        int yG = getRandomNumberY(minY, maxY);
+
+        sf::Event event;
+        while (window.isOpen())
+        {
+            while (window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    window.close();
+            }
+
+            if (clock.getElapsedTime().asSeconds() >= 1)
+            {
+                countdown--;
+                clock.restart();
+                window.setTitle("Game - " + std::to_string(countdown) + "s"); // Оновлюємо заголовок вікна
+            }
+
+            if (countdown < 0)
+            {
+                countdown = 0; // Запобігаємо від'ємним значенням
+                std::cout << playerScore;
+                goto start;
+            }
+            window.clear(sf::Color::White);
+            drawMap(window, texture1);
+            drawPlayer(window, Player, x, y);
+            PlayerMovement(Player, x, y, event);
+            DrawEnemy(window, xG, yG, x, y, minX, maxX, maxY, minY, playerScore);
+            Tab(playerScore);
+            window.display();
+        }
+    }
+    else if (input == 2)
+    {
+        Tab(playerScore);
+    }
+}
 
 
 
@@ -238,7 +361,12 @@ int main()
 
 
 
-
+if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+   {
+       if (someEvent.type == sf::Event::KeyPressed)
+           x -= speed;
+       keyWasPressed = true;
+   }
 
 
 
