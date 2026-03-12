@@ -142,7 +142,7 @@ void drawPlayer(sf::RenderWindow& window, sf::Sprite& Player, int x, int y)
 }
 void PlayerMovement(sf::Sprite& Player, int& x, int& y, sf::Event someEvent)
 {
-<<<<<<< HEAD
+
     static bool keyWasPressed = false;
     static bool keyWasPressedR = false;
     static bool keyWasPressedUP = false;
@@ -154,7 +154,7 @@ void PlayerMovement(sf::Sprite& Player, int& x, int& y, sf::Event someEvent)
     }
     else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
         keyWasPressed = false;
-=======
+
     int speed = 3;
 
     // Перевірка на межі вікна
@@ -162,7 +162,7 @@ void PlayerMovement(sf::Sprite& Player, int& x, int& y, sf::Event someEvent)
     if (x >= WINDOW_WIDTH - 32) x = WINDOW_WIDTH - 32;
     if (y < 0) y = 0;
     if (y >= WINDOW_HEIGHT - 51) y = WINDOW_HEIGHT - 51;
->>>>>>> b3c62be9a53291a7b953b7347e82abe7f5736738
+
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !keyWasPressedR)
     {
@@ -183,7 +183,7 @@ void PlayerMovement(sf::Sprite& Player, int& x, int& y, sf::Event someEvent)
         y += 32;
         keyWasPressedDown = true;
     }
-<<<<<<< HEAD
+
     else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
         keyWasPressedDown = false;
     // Перевірка на межі вікна
@@ -198,14 +198,14 @@ int getRandomNumberX(int minX, int maxX)
 {
     int range = (maxX - minX) / 32;
     return minX + (rand() % (range + 1)) * 32;
-=======
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
     {
         y += speed;
     }
 
     std::cout << "x: " << x << ", y: " << y << std::endl;
->>>>>>> b3c62be9a53291a7b953b7347e82abe7f5736738
+
 }
 
 int getRandomNumberY(int minY, int maxY)
